@@ -24,8 +24,8 @@ public class FakeDataRequest {
         department_list = new ArrayList<Department>();
         department_list.add(new Department(0,"Бар"));
         department_list.add(new Department(1,"Кухня"));
-        department_list.add(new Department(2,"Бар 1"));
-        department_list.add(new Department(3,"Кухня 1"));
+        department_list.add(new Department(2,"Бар Empty"));
+        department_list.add(new Department(3,"Кухня Empty"));
 
         category_list = new ArrayList<Category>();
         category_list.add(new Category(0, "Вино", 0));
@@ -99,6 +99,13 @@ public class FakeDataRequest {
         product_list.add(new Product(42,"Чизкейк",25f,11));
         product_list.add(new Product(43,"Брауни",30f,11));
         product_list.add(new Product(44,"Ореховый торт",25f,11));
+        product_list.add(new Product(45,"Тирамису",33f,11));
+        product_list.add(new Product(46,"Шоколадный фондан",45f,11));
+        product_list.add(new Product(47,"Естерхази",40f,11));
+        product_list.add(new Product(48,"Тарталетка ягодная",20f,11));
+        product_list.add(new Product(49,"Штрудель яблочный",30f,11));
+        product_list.add(new Product(50,"Мороженое",30f,11));
+        product_list.add(new Product(51,"Печенье к чаю",10f,11));
 
     }
 

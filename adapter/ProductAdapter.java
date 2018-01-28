@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import com.kudinov.restoratorclient.R;
@@ -45,10 +46,31 @@ public class ProductAdapter extends BaseAdapter {
         }
 
         Product someProduct = (Product) getItem(position);
+        GridView parentGrid = (GridView)parent;
 
-        TextView bttn = (TextView) view;
-        bttn.setText(someProduct.getName());
+        int columnCount = parentGrid.getNumColumns();
+        int parentWidth = parentGrid.getWidth();
+        int parentHeight = parentGrid.getHeight();
 
-        return bttn;
+        int rowCount = parentGrid.getCount()/ columnCount;
+        if(parentGrid.getCount()%columnCount != 0)
+            rowCount++;
+
+        int width = parentWidth/columnCount;
+        int height = parentHeight/rowCount;
+
+        if(width > ctx.getResources().getDimension(R.dimen.max_width_button))
+            width = (int) ctx.getResources().getDimension(R.dimen.max_width_button);
+
+        if(height > ctx.getResources().getDimension(R.dimen.max_height_button))
+            height = (int) ctx.getResources().getDimension(R.dimen.max_height_button);
+
+
+        TextView text = (TextView) view;
+        text.setText(someProduct.getName());
+        text.setWidth(width);
+        text.setHeight(height);
+
+        return text;
     }
 }

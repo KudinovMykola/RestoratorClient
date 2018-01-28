@@ -4,6 +4,8 @@ import com.kudinov.restoratorclient.model.Category;
 
 public class CategoryListItem implements Checkable {
 
+
+
     private Category category;
     private Boolean flag;
 

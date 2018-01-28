@@ -4,8 +4,6 @@ package com.kudinov.restoratorclient.item;
 import com.kudinov.restoratorclient.model.Product;
 
 public class OrderItem {
-    final static Integer INCREADABLE_VALUE = -1;
-
     private Integer position;
     private Product product;
     private Integer count;
@@ -15,9 +13,7 @@ public class OrderItem {
         this.product = product;
         this.count = count;
     }
-    public OrderItem() {
-        this(INCREADABLE_VALUE,null, INCREADABLE_VALUE);
-    }
+
 
     public Integer getPosition() {
         return position;
