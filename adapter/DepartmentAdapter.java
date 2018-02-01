@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ToggleButton;
 
 import com.kudinov.restoratorclient.R;
+import com.kudinov.restoratorclient.datawaiter.Table;
+import com.kudinov.restoratorclient.model.Category;
 import com.kudinov.restoratorclient.model.Department;
 
 import java.util.List;
@@ -16,14 +18,15 @@ public class DepartmentAdapter extends BaseAdapter{
     private Context ctx;
     private LayoutInflater lInflater;
     private List<Department> objects;
-    private ToggleButton checkedView;
+    private int checkPosition;
 
-    public DepartmentAdapter(Context context, List<Department> departments) {
+    public DepartmentAdapter(Context context, List<Department> departments, int checkPos) {
         ctx = context;
         objects = departments;
-        checkedView = null;
+        checkPosition = checkPos;
         lInflater = (LayoutInflater) ctx
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
     }
 
     @Override
@@ -58,14 +61,18 @@ public class DepartmentAdapter extends BaseAdapter{
         bttn.setFocusable(false);
         bttn.setClickable(false);
 
+        if(position == checkPosition)
+            bttn.setChecked(true);
+        else
+            bttn.setChecked(false);
+
         return bttn;
     }
 
-    public void setCheckItem(Department item, ToggleButton bttn) {
-        if(checkedView != null) {
-            checkedView.setChecked(false);
-        }
-        this.checkedView = bttn;
-        bttn.setChecked(true);
+    public int getCheckPosition() {
+        return checkPosition;
+    }
+    public void setCheckPosition(int checkPosition) {
+        this.checkPosition = checkPosition;
     }
 }

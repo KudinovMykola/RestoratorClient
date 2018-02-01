@@ -1,30 +1,54 @@
 package com.kudinov.restoratorclient.item;
 
+import com.kudinov.restoratorclient.datawaiter.OrderElement;
+
 public class ReceiptItem {
-    public enum TypeItem {ORDER,SUM};
+    public enum TypeReceipt{CURRENT, RESERVE, ORDERED, SUM}
 
-    private OrderItem order;
-    private SumItem sum;
-    private TypeItem type;
+    private String _position;
+    private String _title;
+    private String _count;
+    private String _price;
+    private String _total;
+    private TypeReceipt _type;
 
-    public ReceiptItem(OrderItem orderItem) {
-        type = TypeItem.ORDER;
-        sum = null;
-        order = orderItem;
+    public ReceiptItem(Integer position, String productName, Float price, Integer count, Float total, TypeReceipt type) {
+        _position = position.toString();
+        _title = productName;
+        _price = price.toString();
+        _count = count.toString();
+        _total = total.toString();
+        _type = type;
     }
-    public ReceiptItem(SumItem sumItem) {
-        type = TypeItem.SUM;
-        sum = sumItem;
-        order = null;
+    public ReceiptItem(String itemName, Float sum) {
+        _position = "";
+        _title = itemName;
+        _price = "";
+        _count = "";
+        _total = sum.toString();
+        _type = TypeReceipt.SUM;
     }
 
-    public OrderItem getOrder() {
-        return order;
+    public void set_position(String _position) {
+        this._position = _position;
     }
-    public SumItem getSum() {
-        return sum;
+
+    public String get_position() {
+        return _position;
     }
-    public TypeItem getType() {
-        return type;
+    public String get_title() {
+        return _title;
+    }
+    public String get_count() {
+        return _count;
+    }
+    public String get_price() {
+        return _price;
+    }
+    public String get_total() {
+        return _total;
+    }
+    public TypeReceipt get_type() {
+        return _type;
     }
 }

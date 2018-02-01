@@ -5,18 +5,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 import android.widget.GridView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.kudinov.restoratorclient.adapter.CategoryAdapter;
 import com.kudinov.restoratorclient.adapter.DepartmentAdapter;
 import com.kudinov.restoratorclient.adapter.ProductAdapter;
 import com.kudinov.restoratorclient.adapter.ReceiptAdapter;
+import com.kudinov.restoratorclient.datawaiter.OrderElement;
+import com.kudinov.restoratorclient.datawaiter.Table;
 import com.kudinov.restoratorclient.fakedata.FakeDataRequest;
-import com.kudinov.restoratorclient.item.CategoryListItem;
-import com.kudinov.restoratorclient.list.ReceiptList;
+import com.kudinov.restoratorclient.item.ReceiptItem;
 import com.kudinov.restoratorclient.model.Category;
 import com.kudinov.restoratorclient.model.Department;
 import com.kudinov.restoratorclient.model.Product;
@@ -27,7 +27,8 @@ import java.util.List;
 public class OrderActivity extends AppCompatActivity {
     //data
     private FakeDataRequest data;
-
+    private Table currentTable;
+    private Float total;
     //view's
 
     private ListView lvReceipts;
@@ -43,43 +44,42 @@ public class OrderActivity extends AppCompatActivity {
     private ProductAdapter adapterProduct;
 
     //list's
-    private ReceiptList receiptList;
-
-    private List<List<CategoryListItem>> pointCategories;
-    private List<CategoryListItem> emptyItemList;
-    private List<Product> productList;
+    private List<ReceiptItem> receiptList;
+    final private List<Department> departmentList = new ArrayList<>();
+    final private List<Category> categoryList = new ArrayList<>();
+    final private List<Product> productList = new ArrayList<>();
 
     TextView txtTotalSum;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order);
 
         data = new FakeDataRequest();
-        this.createItemList();
+        currentTable = new Table("Test Table", data.getAllDepartment().size());
+
+        createMenu();
+        receiptList = new ArrayList<>();
 
         this.findStartElements();
+        departmentList.addAll(data.getAllDepartment());
         loadAdapters();
-        txtTotalSum.setText(receiptList.getTotalSum().toString());
+
 
         gvDepartments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Department item = (Department) parent.getAdapter().getItem(position);
-                adapterDepartments.setCheckItem(item, (ToggleButton)view);
-                changeDepartment(item);
+                currentTable.setCheckDepartmentPosition(position);
+                refreshMenu();
             }
         });
 
         lvCategories.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                CategoryListItem item = (CategoryListItem) parent.getAdapter().getItem(position);
-                if(!item.isChecked()) {
-                    adapterCategories.setCheckItem(item);
-                    loadProducts(data.getProductByCategory(item.getCategory()));
-                }
+                currentTable.getArrCheckCategory()[currentTable.getCheckDepartmentPosition()] = position;
+                refreshMenu();
             }
         });
 
@@ -87,31 +87,35 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Product item = (Product) parent.getAdapter().getItem(position);
-                receiptList.addToCurrentList(item, 1);
-                adapterReceipt.notifyDataSetChanged();
-                txtTotalSum.setText(String.valueOf(receiptList.getTotalSum()));
-                lvReceipts.smoothScrollToPosition(receiptList.getCountItems());
-
+                currentTable.addProductToCurrentList(item,1);
+                refreshReceipt();
+                lvReceipts.smoothScrollToPosition(receiptList.size() - 1);
             }
         });
     }
 
-    //Create data
-    private List<CategoryListItem> CategoryToCategoryListItem(List<Category>categories) {
-        List<CategoryListItem> categoryListItems = new ArrayList<CategoryListItem>();
-        for(Category category: categories) {
-            categoryListItems.add(new CategoryListItem(category));
-        }
-        return categoryListItems;
-    }
-    private void createItemList() {
-        pointCategories = new ArrayList<List<CategoryListItem>>();
+    //refresh info
+    private void refreshReceipt() {
+        createReceiptList();
+        adapterReceipt.notifyDataSetChanged();
 
-        List<CategoryListItem> categoryItems = null;
-        for(Department dep: data.getAllDepartment()) {
-            categoryItems = CategoryToCategoryListItem(data.getCategoryByDepartment(dep));
-            pointCategories.add(categoryItems);
-        }
+        txtTotalSum.setText(String.valueOf(total));
+    }
+    private void refreshMenu() {
+        createMenu();
+
+        adapterDepartments.setCheckPosition(currentTable.getCheckDepartmentPosition());
+        adapterDepartments.notifyDataSetChanged();
+
+
+        if(currentTable.getArrCheckCategory()[currentTable.getCheckDepartmentPosition()] == Table.NON_CHECKED_POSITION)
+            adapterCategories.setCheckPosition(Table.NON_CHECKED_POSITION);
+        else
+            adapterCategories.setCheckPosition(currentTable.getArrCheckCategory()[currentTable.getCheckDepartmentPosition()]);
+        adapterCategories.notifyDataSetChanged();
+
+        adapterProduct.notifyDataSetChanged();
+
     }
 
     //Set ListViews and Adapters
@@ -124,89 +128,124 @@ public class OrderActivity extends AppCompatActivity {
 
         txtTotalSum = findViewById(R.id.total_sum);
     }
+    private void createReceiptList() {
+        Integer position = 0;
+        //Float itemTotal = 0f;
+        Float currentSum = 0f;
+        Float totalSum = 0f;
+        receiptList.clear();
+        //Product product = null;
+
+        if(currentTable.getOrderedList().size() != 0) {
+            for(OrderElement order: currentTable.getOrderedList()) {
+                Product product = data.getProductById(order.getProduct_id());
+                position++;
+                Float itemTotal = product.getPrice() * order.getCount();
+                receiptList.add(new ReceiptItem(position,
+                        product.getName(), product.getPrice(),
+                        order.getCount(), itemTotal, ReceiptItem.TypeReceipt.ORDERED));
+                currentSum += itemTotal;
+            }
+            receiptList.add(new ReceiptItem(getString(R.string.ordered), currentSum));
+            totalSum += currentSum;
+            currentSum = 0f;
+        }
+
+        if(currentTable.getReserveList().size() != 0) {
+            for(OrderElement order: currentTable.getReserveList()) {
+                Product product = data.getProductById(order.getProduct_id());
+                position++;
+                Float itemTotal = product.getPrice() * order.getCount();
+                receiptList.add(new ReceiptItem(position,
+                        product.getName(), product.getPrice(),
+                        order.getCount(), itemTotal, ReceiptItem.TypeReceipt.RESERVE));
+                currentSum += itemTotal;
+            }
+            receiptList.add(new ReceiptItem(getString(R.string.on_reserve), currentSum));
+            totalSum += currentSum;
+            currentSum = 0f;
+        }
+
+        if(currentTable.getCurrentList().size() != 0) {
+            for(OrderElement order: currentTable.getCurrentList()) {
+                Product product = data.getProductById(order.getProduct_id());
+                position++;
+                Float itemTotal = product.getPrice() * order.getCount();
+                receiptList.add(new ReceiptItem(position,
+                        product.getName(), product.getPrice(),
+                        order.getCount(), itemTotal, ReceiptItem.TypeReceipt.CURRENT));
+                currentSum += itemTotal;
+            }
+            receiptList.add(new ReceiptItem(getString(R.string.current), currentSum));
+            totalSum += currentSum;
+        }
+
+        total = totalSum;
+    }
+    private void createMenu() {
+        categoryList.clear();
+        productList.clear();
+
+        if(currentTable.getCheckDepartmentPosition() >= departmentList.size())
+            currentTable.setCheckDepartmentPosition(Table.NON_CHECKED_POSITION);
+
+        if(currentTable.getCheckDepartmentPosition() != Table.NON_CHECKED_POSITION) {
+            categoryList.addAll(data.getCategoryByDepartment(departmentList.get(
+                    currentTable.getCheckDepartmentPosition())));
+
+
+            if(currentTable.getArrCheckCategory()[currentTable.getCheckDepartmentPosition()] >= categoryList.size())
+                currentTable.getArrCheckCategory()[currentTable.getCheckDepartmentPosition()] = Table.NON_CHECKED_POSITION;
+
+            if(currentTable.getArrCheckCategory()[currentTable.getCheckDepartmentPosition()] != Table.NON_CHECKED_POSITION){
+                productList.addAll(data.getProductByCategory(categoryList.get(
+                        currentTable.getArrCheckCategory()[currentTable.getCheckDepartmentPosition()])));
+            }
+        }
+    }
     private void loadAdapters() {
-        receiptList = new ReceiptList(getString(R.string.ordered), getString(R.string.on_reserve), getString(R.string.current));
+        createReceiptList();
         adapterReceipt = new ReceiptAdapter(OrderActivity.this, R.layout.receipt_item, receiptList);
         lvReceipts.setAdapter(adapterReceipt);
 
-        adapterDepartments = new DepartmentAdapter(OrderActivity.this, data.getAllDepartment());
+        adapterDepartments = new DepartmentAdapter(OrderActivity.this, departmentList,
+                currentTable.getCheckDepartmentPosition());
         gvDepartments.setAdapter(adapterDepartments);
 
-        emptyItemList = new ArrayList<CategoryListItem>();
-        adapterCategories = new CategoryAdapter(OrderActivity.this, emptyItemList);
+        adapterCategories = new CategoryAdapter(OrderActivity.this, categoryList,
+                Table.NON_CHECKED_POSITION);
         lvCategories.setAdapter(adapterCategories);
 
-        productList = new ArrayList<Product>();
         adapterProduct = new ProductAdapter(OrderActivity.this, productList);
         gvProducts.setAdapter(adapterProduct);
     }
 
-    //ListViews control
-    public void changeDepartment(Department department) {
-
-        if(data.getCategoryByDepartment(department).size() < 1){
-            clearProductView();
-            clearCategoryView();
-            return;
-        }
-
-        List<CategoryListItem> selectedList = pointCategories.get(department.getId());
-        if (selectedList != null && selectedList.size() > 0) {
-            loadCategories(selectedList);
-            CategoryListItem checkItem = null;
-            for(CategoryListItem item : selectedList) {
-                if(item.isChecked())
-                    checkItem = item;
-            }
-
-            if(checkItem == null) {
-                clearProductView();
-            }
-            else
-                loadProducts(data.getProductByCategory(checkItem.getCategory()));
-        } else {
-            clearProductView();
-        }
-
-    }
-
-    private void loadCategories(List<CategoryListItem> categories){
-        adapterCategories = new CategoryAdapter(OrderActivity.this, categories);
-        lvCategories.setAdapter(adapterCategories);
-    }
-    private void clearCategoryView() {
-        adapterCategories = new CategoryAdapter(OrderActivity.this, emptyItemList);
-        lvCategories.setAdapter(adapterCategories);
-    }
-
-    private void loadProducts(List<Product> products){
-        productList.clear();
-        productList.addAll(products);
-        adapterProduct.notifyDataSetChanged();
-
-    }
-    private void clearProductView() {
-        if(productList != null){
-            productList.clear();
-            if(adapterProduct != null)
-                adapterProduct.notifyDataSetChanged();
-        }
-    }
-
     //buttons
     public void sendOrder(View view) {
-        receiptList.allToOrderList();
-        adapterReceipt.notifyDataSetChanged();
+        currentTable.allToOrderList();
+        refreshReceipt();
     }
     public void createReserve(View view) {
-        receiptList.currentToReserve();
-        adapterReceipt.notifyDataSetChanged();
+        currentTable.currentToReserve();
+        refreshReceipt();
     }
     public void deleteCurrentOrder(View view) {
-        receiptList.clearCurrentAndReserve();
-        adapterReceipt.notifyDataSetChanged();
+        currentTable.clearCurrentAndReserve();
+        refreshReceipt();
+    }
 
+    //instanse work
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("table",currentTable);
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        currentTable = savedInstanceState.getParcelable("table");
+        refreshReceipt();
+        refreshMenu();
 
-        txtTotalSum.setText(String.valueOf(receiptList.getTotalSum()));
     }
 }

@@ -124,7 +124,7 @@ public class FakeDataRequest {
         Integer department_id = dp.getId();
 
         for(Category someCategory: category_list) {
-            if(someCategory.getDepartment_id() == department_id)
+            if(someCategory.getDepartment_id().equals(department_id))
                 result_list.add(someCategory);
         }
 
@@ -156,6 +156,14 @@ public class FakeDataRequest {
     public List<Category> getKitchenCategory() {
         Department dp = department_list.get(1);
         return getCategoryByDepartment(dp);
+    }
+
+    public Product getProductById(int i) {
+        for(Product p: product_list) {
+            if (p.getId() == i)
+                return p;
+        }
+        return null;
     }
 
 }

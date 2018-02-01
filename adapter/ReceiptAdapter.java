@@ -9,18 +9,18 @@ import android.widget.TextView;
 
 import com.kudinov.restoratorclient.R;
 import com.kudinov.restoratorclient.item.ReceiptItem;
-import com.kudinov.restoratorclient.list.ReceiptList;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 public class ReceiptAdapter extends BaseAdapter {
 
     private Context ctx;
-    private ReceiptList objects;
+    private List<ReceiptItem> objects;
     private LayoutInflater lInflater;
     private Integer res;
 
-    public ReceiptAdapter(Context context, int resourse, ReceiptList receiptItems) {
+    public ReceiptAdapter(Context context, int resourse, List<ReceiptItem> receiptItems) {
         ctx = context;
         res = resourse;
         objects = receiptItems;
@@ -30,12 +30,12 @@ public class ReceiptAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return objects.getReceiptItems().size();
+        return objects.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return objects.getReceiptItems().get(position);
+        return objects.get(position);
     }
 
     @Override
@@ -52,8 +52,7 @@ public class ReceiptAdapter extends BaseAdapter {
         if (view == null) {
             view = lInflater.inflate(res, parent, false);
         }
-        String pattern = "##0.00";
-        DecimalFormat decimalFormat = new DecimalFormat(pattern);
+
 
         TextView pos =  view.findViewById(R.id.number_position);
         TextView name = view.findViewById(R.id.title_item);
@@ -61,54 +60,29 @@ public class ReceiptAdapter extends BaseAdapter {
         TextView price = view.findViewById(R.id.price_product);
         TextView total = view.findViewById(R.id.total_price);
 
-        if (receiptItem.getType() == ReceiptItem.TypeItem.ORDER) {
-            pos.setText(String.valueOf(receiptItem.getOrder().getPosition()));
-            name.setText(receiptItem.getOrder().getName());
-            count.setText(String.valueOf(receiptItem.getOrder().getCount()));
-            price.setText(decimalFormat.format(receiptItem.getOrder().getPrice()));
-            total.setText(decimalFormat.format(receiptItem.getOrder().getTotal()));
-
-            view.setBackgroundColor(ctx.getResources()
-                    .getColor(getResByPosition(position)));
-        } else {
+        total.setText(receiptItem.get_total());
+        name.setText(receiptItem.get_title());
+        if(receiptItem.get_type() == ReceiptItem.TypeReceipt.SUM) {
             pos.setText("");
-            name.setText(receiptItem.getSum().getTitle());
             count.setText("");
             price.setText("");
-            total.setText(decimalFormat.format(receiptItem.getSum().getSum()));
 
             view.setBackgroundColor(ctx.getResources().getColor(R.color.categoryNonFocus));
+            return view;
         }
+
+        pos.setText(receiptItem.get_position());
+        count.setText(receiptItem.get_count());
+        price.setText(receiptItem.get_price());
+
+        if (receiptItem.get_type() == ReceiptItem.TypeReceipt.ORDERED) {
+            view.setBackgroundColor(ctx.getResources().getColor(R.color.doneOrder));
+        } else if(receiptItem.get_type() == ReceiptItem.TypeReceipt.RESERVE){
+            view.setBackgroundColor(ctx.getResources().getColor(R.color.reserveOrder));
+        } else {
+            view.setBackgroundColor(ctx.getResources().getColor(R.color.currentOrder));
+        }
+
         return view;
-    }
-
-    private int getResByPosition(int position) {
-        Integer orderedS = objects.getOrderedList().size();
-        Integer reserveS = objects.getReserveList().size();
-
-        if(orderedS == 0 && reserveS == 0)
-            return R.color.currentOrder;
-
-        if(orderedS == 0 && reserveS < position)
-            return R.color.currentOrder;
-
-        if(reserveS == 0 && orderedS < position )
-            return R.color.currentOrder;
-
-        if(orderedS == 0 && reserveS > position)
-            return R.color.reserveOrder;
-
-        if(reserveS == 0 && orderedS > position )
-            return R.color.doneOrder;
-
-        if(position < orderedS)
-            return R.color.doneOrder;
-
-        if(position < reserveS + orderedS +1 )
-            return  R.color.reserveOrder;
-
-
-        return R.color.currentOrder;
-
     }
 }
