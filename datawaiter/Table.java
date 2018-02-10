@@ -3,6 +3,7 @@ package com.kudinov.restoratorclient.datawaiter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.kudinov.restoratorclient.item.OrderItem;
 import com.kudinov.restoratorclient.model.Product;
 
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ public class Table implements Parcelable{
     };
 
     //support listwork
-    private OrderElement findOrderElementById(List<OrderElement> itemList, Integer id) {
+    public OrderElement findOrderElementById(List<OrderElement> itemList, Integer id) {
         if(itemList.size() == 0)
             return null;
 
@@ -115,10 +116,17 @@ public class Table implements Parcelable{
             }
         }
     }
+    private float getSum(List<OrderElement> list) {
+        float sum = 0f;
+        for(OrderElement element: list)
+            sum += (element.getPrice() * element.getCount());
+
+        return sum;
+    }
 
     //public listwork's method's
     public void addProductToCurrentList(Product product, int count) {
-        OrderElement addedItem = new OrderElement(product.getId(),count);
+        OrderElement addedItem = new OrderElement(product.getId(),product.getPrice(),count);
         addOneElement(currentList, addedItem);
     }
     public void clearCurrentAndReserve() {
@@ -138,6 +146,9 @@ public class Table implements Parcelable{
     }
 
     //setter and getters
+    public String getName() {
+        return name;
+    }
 
     public int getCheckDepartmentPosition() {
         return checkDepartmentPosition;
@@ -145,14 +156,10 @@ public class Table implements Parcelable{
     public void setCheckDepartmentPosition(int checkDepartmentPosition) {
         this.checkDepartmentPosition = checkDepartmentPosition;
     }
-
-    public String getName() {
-        return name;
-    }
-
     public int[] getArrCheckCategory() {
         return arrCheckCategory;
     }
+
     public List<OrderElement> getOrderedList() {
         return orderedList;
     }
@@ -163,6 +170,20 @@ public class Table implements Parcelable{
         return currentList;
     }
 
+    public float getOrderedSum() {
+        return getSum(this.orderedList);
+    }
+    public float getReserveSum() {
+        return getSum(this.reserveList);
+    }
+    public float getCurrentSum() {
+        return getSum(this.currentList);
+    }
+    public float getTotal() {
+        float sum = getOrderedSum() + getReserveSum() + getCurrentSum();
+
+        return sum;
+    }
 
     @Override
     public int describeContents() {

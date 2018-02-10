@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.kudinov.restoratorclient.datawaiter.Hall;
 
 public class AuthorizationActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -36,7 +37,7 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if(user != null) {
                 //user signed in
-                Intent intent = new Intent(AuthorizationActivity.this, OrderActivity.class);
+                Intent intent = new Intent(AuthorizationActivity.this, HallActivity.class);
                 startActivity(intent);
             } else {
                 //user signed out
@@ -60,7 +61,7 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
         FirebaseUser currentUser = mAuth.getCurrentUser();//FireBase
 
         if(currentUser != null) {
-            Intent intent = new Intent(AuthorizationActivity.this, OrderActivity.class);
+            Intent intent = new Intent(AuthorizationActivity.this, HallActivity.class);
             startActivity(intent);
         }
     }

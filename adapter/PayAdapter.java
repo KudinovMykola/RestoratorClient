@@ -10,19 +10,15 @@ import android.widget.TextView;
 import com.kudinov.restoratorclient.R;
 import com.kudinov.restoratorclient.item.ReceiptItem;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
-public class ReceiptAdapter extends BaseAdapter {
-
+public class PayAdapter extends BaseAdapter{
     private Context ctx;
     private List<ReceiptItem> objects;
     private LayoutInflater lInflater;
-    private Integer res;
 
-    public ReceiptAdapter(Context context, int resourse, List<ReceiptItem> receiptItems) {
+    public PayAdapter(Context context, List<ReceiptItem> receiptItems) {
         ctx = context;
-        res = resourse;
         objects = receiptItems;
         lInflater = (LayoutInflater) ctx
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -50,9 +46,8 @@ public class ReceiptAdapter extends BaseAdapter {
         ReceiptItem receiptItem = (ReceiptItem) getItem(position);
 
         if (view == null) {
-            view = lInflater.inflate(res, parent, false);
+            view = lInflater.inflate(R.layout.pay_item, parent, false);
         }
-
 
         TextView pos =  view.findViewById(R.id.number_position);
         TextView name = view.findViewById(R.id.title_item);
@@ -60,28 +55,11 @@ public class ReceiptAdapter extends BaseAdapter {
         TextView price = view.findViewById(R.id.price_product);
         TextView total = view.findViewById(R.id.total_price);
 
-        total.setText(String.valueOf(receiptItem.get_total()));
-        name.setText(receiptItem.get_title());
-        if(receiptItem.get_type() == ReceiptItem.TypeReceipt.SUM) {
-            pos.setText("");
-            count.setText("");
-            price.setText("");
-
-            view.setBackgroundColor(ctx.getResources().getColor(R.color.categoryNonFocus));
-            return view;
-        }
-
         pos.setText(String.valueOf(receiptItem.get_position()));
+        name.setText(receiptItem.get_title());
         count.setText(String.valueOf(receiptItem.get_count()));
         price.setText(String.valueOf(receiptItem.get_price()));
-
-        if (receiptItem.get_type() == ReceiptItem.TypeReceipt.ORDERED) {
-            view.setBackgroundColor(ctx.getResources().getColor(R.color.doneOrder));
-        } else if(receiptItem.get_type() == ReceiptItem.TypeReceipt.RESERVE){
-            view.setBackgroundColor(ctx.getResources().getColor(R.color.reserveOrder));
-        } else {
-            view.setBackgroundColor(ctx.getResources().getColor(R.color.currentOrder));
-        }
+        total.setText(String.valueOf(receiptItem.get_total()));
 
         return view;
     }

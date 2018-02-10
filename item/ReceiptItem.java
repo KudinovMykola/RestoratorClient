@@ -5,47 +5,52 @@ import com.kudinov.restoratorclient.datawaiter.OrderElement;
 public class ReceiptItem {
     public enum TypeReceipt{CURRENT, RESERVE, ORDERED, SUM}
 
-    private String _position;
+    private int _id_product;
+    private int _position;
     private String _title;
-    private String _count;
-    private String _price;
-    private String _total;
+    private int _count;
+    private float _price;
+    private float _total;
     private TypeReceipt _type;
 
-    public ReceiptItem(Integer position, String productName, Float price, Integer count, Float total, TypeReceipt type) {
-        _position = position.toString();
+    public ReceiptItem(int position, int id, String productName, float price, int count, float total, TypeReceipt type) {
+        _position = position;
+        _id_product = id;
         _title = productName;
-        _price = price.toString();
-        _count = count.toString();
-        _total = total.toString();
+        _price = price;
+        _count = count;
+        _total = total;
         _type = type;
     }
     public ReceiptItem(String itemName, Float sum) {
-        _position = "";
+        _position = 0;
         _title = itemName;
-        _price = "";
-        _count = "";
-        _total = sum.toString();
+        _price = 0f;
+        _count = 0;
+        _total = sum;
         _type = TypeReceipt.SUM;
     }
 
-    public void set_position(String _position) {
+    public void set_position(int position) {
         this._position = _position;
     }
 
-    public String get_position() {
+    public int get_id_product() {
+        return _id_product;
+    }
+    public int get_position() {
         return _position;
     }
     public String get_title() {
         return _title;
     }
-    public String get_count() {
+    public int get_count() {
         return _count;
     }
-    public String get_price() {
+    public float get_price() {
         return _price;
     }
-    public String get_total() {
+    public float get_total() {
         return _total;
     }
     public TypeReceipt get_type() {
