@@ -1,6 +1,9 @@
 package com.kudinov.restoratorclient.datawaiter;
 
 import android.app.Application;
+import android.arch.persistence.room.Room;
+import android.graphics.drawable.Drawable;
+import android.widget.Toast;
 
 import com.kudinov.restoratorclient.fakedata.FakeDataRequest;
 
@@ -12,6 +15,7 @@ public class Hall extends Application {
     private int checkTable;
     private int paidTableCount;
     private float output;
+
 
     public Hall() {
         tables = new ArrayList<>();

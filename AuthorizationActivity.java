@@ -37,7 +37,7 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if(user != null) {
                 //user signed in
-                Intent intent = new Intent(AuthorizationActivity.this, HallActivity.class);
+                Intent intent = new Intent(AuthorizationActivity.this, TestRoomActivity.class);
                 startActivity(intent);
             } else {
                 //user signed out
@@ -61,7 +61,7 @@ public class AuthorizationActivity extends AppCompatActivity implements View.OnC
         FirebaseUser currentUser = mAuth.getCurrentUser();//FireBase
 
         if(currentUser != null) {
-            Intent intent = new Intent(AuthorizationActivity.this, HallActivity.class);
+            Intent intent = new Intent(AuthorizationActivity.this, TestRoomActivity.class);
             startActivity(intent);
         }
     }

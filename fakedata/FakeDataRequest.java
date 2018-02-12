@@ -24,8 +24,6 @@ public class FakeDataRequest {
         department_list = new ArrayList<Department>();
         department_list.add(new Department(0,"Бар"));
         department_list.add(new Department(1,"Кухня"));
-        department_list.add(new Department(2,"Бар Empty"));
-        department_list.add(new Department(3,"Кухня Empty"));
 
         category_list = new ArrayList<Category>();
         category_list.add(new Category(0, "Вино", 0));

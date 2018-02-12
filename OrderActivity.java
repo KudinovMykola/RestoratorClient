@@ -1,6 +1,7 @@
 package com.kudinov.restoratorclient;
 
 import android.app.AlertDialog;
+import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderActivity extends AppCompatActivity {
+
     private final String DIALOG_COUNT_SHOW = "d";
     private final String POSITION_SELECT_ITEM = "p";
     private final String COUNT_DIALOG = "c";
@@ -67,8 +69,11 @@ public class OrderActivity extends AppCompatActivity {
     EditText countCurrentitem;
     ReceiptItem selectedReceipt;
     int positionSelectReceiptItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order);
 
